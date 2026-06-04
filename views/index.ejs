@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <%- include('partials/nav.ejs') %>
+    <h1>LBIS</h1>
+
+    I am <%= user %>
+    <% if (gender=="female" ) { %>
+        <p>I am a girl</p>
+    <% } else { %>
+        <p>I am a boy</p>
+    <% } %>
+
+    <form action="/addProduct" method="post">
+        <input type="text" name="name" id="" placeholder="Product Name">
+        <input type="text" name="price" id="" placeholder="Product Price">
+        <input type="text" name="category" id="" placeholder="Product Category">
+        <input type="text" name="inStock" id="" placeholder="IN STOCK">
+
+        <button>Submit Product</button>
+    </form>
+
+    <div class="d-flex flex-wrap gap-3 mt-5">
+        <% products.forEach((product, idx)=> { %>
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">
+                <%= product.name %></h5>
+                <h6 class="card-subtitle mb-2 text-body-secondary">
+                <%= product.price %></h6>
+                <p class="card-text">
+                <%= product.category %></p>
+                <p class="card-link btn btn-dark">IN STOCK: <%= product.inStock %></p>
+                <div>
+                    <form action="/delete/<%= idx %>" method="post">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    <form action="/edit/<%= idx %>" method="get">
+                        <button class="btn btn-primary">Edit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+
+
+
+
+
+
+    <%# EJS Comment %>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+
+</html>
