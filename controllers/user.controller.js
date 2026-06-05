@@ -405,14 +405,16 @@ const addProdToDB = async (req, res) => {
 const getProd = async (req, res) => {
     const { id } = req.params
     try {
+        if (!id) {
+            return res.status(400).send({ message: "Product ID is required" });
+        }
+
         const prod = await ProductModel.findById(id)
 
         if (!prod) {
-            res.status(404).send({
-                message: "Product not found"
-            })
-            return
+            return res.status(404).send({ message: "Product not found" });
         }
+        
         res.status(200).send({
             message: "Product fetched successfully ",
             data: prod
