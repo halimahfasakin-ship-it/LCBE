@@ -68,7 +68,7 @@ const addUserToDB = async (req, res) => {
 
         console.log(req.body)
 
-        const token = await jwt.sign({ id: user._id }, process.env.APP_TOKEN, { expiresIn: "5h" })
+        const token = await jwt.sign({ id: user._id, role: user.role }, process.env.APP_TOKEN, { expiresIn: "5h" })
 
 
         res.status(201).send({
@@ -755,7 +755,7 @@ const clearCart = async (req, res) => {
 
 const createOrder = async (req, res) => {
 
-    const { userId } = req.user
+    const { userId } = req.user.id
     const { deliveryAddress } = req.body
     try {
 
