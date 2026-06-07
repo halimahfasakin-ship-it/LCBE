@@ -9,7 +9,7 @@ const router = express.Router()
 router.post("/addUserToDB", addUserToDB)
 router.get("/getUsers", verifyUser, getUsers)
 router.get("/getUser/:id", getUser)
-router.get("/staff", getStaffs)
+router.get("/staff", verifyUser, authorizeRoles("admin"), getStaffs),
 router.delete("/deleteUser/:id", deleteUser)
 router.put("/editUser/:id", editUser)
 router.post("/login", login)
@@ -32,7 +32,6 @@ router.get("/getallOrders", verifyUser, authorizeRoles("admin", "staff"), getAll
 router.patch("/updateOrderStatus/:orderId", verifyUser, authorizeRoles("admin", "staff"), updateOrderStatus)
 router.put("/order/cancel/:id", verifyUser, cancelOrder)
 router.get("/order/:id", verifyUser, getSingleOrder)
-router.get("/staff", verifyUser, authorizeRoles("admin"), getStaffs)
 
 
 module.exports = router
