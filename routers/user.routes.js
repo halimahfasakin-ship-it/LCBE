@@ -1,5 +1,5 @@
 const express = require("express")
-const { addUserToDB, getUsers, getUser, deleteUser, editUser, login, verifyUser, changePassword, requestOTP, addProdToDB, getProd, getProds, deleteProd, editProd, addToCart, getUserCart, increaseQuantity, decreaseQuantity, removeFromCart, clearCart, createOrder, getUserOrders, getAllOrders, updateOrderStatus, getSingleOrder, cancelOrder, getStaffs } = require("../controllers/user.controller")
+const { addUserToDB, getUsers, getUser, deleteUser, editUser, login, verifyUser, changePassword, requestOTP, addProdToDB, getProd, getProds, deleteProd, editProd, addToCart, getUserCart, increaseQuantity, decreaseQuantity, removeFromCart, clearCart, createOrder, getUserOrders, getAllOrders, updateOrderStatus, getSingleOrder, cancelOrder, getStaffs, deleteStaff, editStaff } = require("../controllers/user.controller")
 const { verify } = require("jsonwebtoken")
 const { authorizeRoles } = require("../middleware/auth")
 
@@ -9,14 +9,16 @@ const router = express.Router()
 router.post("/addUserToDB", addUserToDB)
 router.get("/getUsers", verifyUser, getUsers)
 router.get("/getUser/:id", getUser)
-router.get("/staff", verifyUser, authorizeRoles("admin"), getStaffs),
+router.get("/staff", verifyUser, authorizeRoles("user", "admin"), getStaffs),
+router.patch("/editStaff/:id", verifyUser, authorizeRoles("admin", "staff"), editStaff),
+router.delete("/deleteStaff/:id", verifyUser, authorizeRoles("admin", "staff"), deleteStaff),
 router.delete("/deleteUser/:id", deleteUser)
 router.put("/editUser/:id", editUser)
 router.post("/login", login)
 router.patch("/change-pass", verifyUser, changePassword)
 router.post("/request-otp", requestOTP)
 router.post("/addProdToDB", verifyUser, authorizeRoles("admin"), addProdToDB)
-router.get("/getProd/:id", verifyUser, authorizeRoles("user", "admin"), getProd)
+router.get("/getProd/:id", getProd)
 router.get("/getProds", getProds)
 router.delete("/deleteProd/:id",verifyUser, authorizeRoles("admin"), deleteProd)
 router.patch("/editProd/:id", verifyUser, authorizeRoles("admin"), editProd)

@@ -50,20 +50,20 @@ const addUserToDB = async (req, res) => {
         const saltRound = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, saltRound);
 
-        // if (!profileImage) {
-        //     return res.status(400).send({
-        //         message: "Profile image is required"
-        //     })
-        // }
-        // const image = await cloudinary.uploader.upload(profileImage)
+        if (!profileImage) {
+            return res.status(400).send({
+                message: "Profile image is required"
+            })
+        }
+        const image = await cloudinary.uploader.upload(profileImage)
 
 
         const user = await UserModel.create({
-            firstName, lastName, email, password: hashedPassword, gender, role
-            // profileImage: {
-            //     public_id: image.public_id,
-            //     secure_url: image.secure_url
-            // }
+            firstName, lastName, email, password: hashedPassword, gender, role,
+            profileImage: {
+                public_id: image.public_id,
+                secure_url: image.secure_url
+            }
         })
 
         console.log(req.body)
@@ -84,7 +84,7 @@ const addUserToDB = async (req, res) => {
 
 
     } catch (error) {
-        console.log(error);
+        console.log("FULL ERROR:", error);
         if (error.code == "11000") {
             res.status(400).send({
                 message: "User already exists"
@@ -128,7 +128,8 @@ const login = async (req, res) => {
                 firstName: isUser.firstName,
                 lastName: isUser.lastName,
                 email,
-                token
+                token,
+                role: isUser.role
             }
         })
 
@@ -275,6 +276,7 @@ const changePassword = async (req, res) => {
 }
 
 const verifyUser = (req, res, next) => {
+    console.log("VERIFY USER HIT");
     const authHeader = req.headers["authorization"];
 
     console.log("Auth Header:", authHeader); // Debugging log
@@ -303,8 +305,8 @@ const verifyUser = (req, res, next) => {
 
     } catch (error) {
         console.log(error);
-        return res.status(401).send({
-            message: "User unauthorized"
+        return res.status(400).send({
+            message: error.message
         });
     }
 };
@@ -414,7 +416,7 @@ const getProd = async (req, res) => {
         if (!prod) {
             return res.status(404).send({ message: "Product not found" });
         }
-        
+
         res.status(200).send({
             message: "Product fetched successfully ",
             data: prod
@@ -498,9 +500,9 @@ const addToCart = async (req, res) => {
             const existingProduct = cart.products.find(item => item.productId && item.productId.toString() === productId)
 
             if (existingProduct) {
-                existingProduct.quantity += quantity
+                existingProduct.quantity += Number(quantity || 1);
             } else {
-                cart.products.push({ productId, quantity })
+                cart.products.push({ productId, quantity: Number(quantity || 1) })
             }
         }
         await cart.save()
@@ -755,7 +757,7 @@ const clearCart = async (req, res) => {
 
 const createOrder = async (req, res) => {
 
-    const { userId } = req.user.id
+    const userId = req.user.id
     const { deliveryAddress } = req.body
     try {
 
@@ -964,6 +966,7 @@ const getSingleOrder = async (req, res) => {
 }
 
 const getStaffs = async (req, res) => {
+    console.log("GET STAFFS CONTROLLER HIT");
     try {
 
         const staffs = await UserModel.find({
@@ -984,6 +987,50 @@ const getStaffs = async (req, res) => {
         })
 
     }
+}
+
+const deleteStaff = async (req, res) => {
+  const { id } = req.params
+
+  try {
+    await UserModel.findByIdAndDelete(id)
+
+    res.status(200).send({
+      message: "Staff deleted successfully"
+    })
+
+  } catch (error) {
+    console.log(error)
+
+    res.status(500).send({
+      message: "Failed to delete staff"
+    })
+  }
+}
+
+const editStaff = async (req, res) => {
+    console.log("editStaff route hit")
+  const { id } = req.params
+
+  try {
+    const staff = await UserModel.findByIdAndUpdate(
+      id,
+      req.body,
+      { new: true }
+    ).select("-password")
+
+    res.status(200).send({
+      message: "Staff updated successfully",
+      data: staff
+    })
+
+  } catch (error) {
+    console.log(error)
+
+    res.status(500).send({
+      message: "Failed to update staff"
+    })
+  }
 }
 
 
@@ -1015,5 +1062,7 @@ module.exports = {
     updateOrderStatus,
     getSingleOrder,
     cancelOrder,
-    getStaffs
+    getStaffs,
+    deleteStaff,
+    editStaff
 }
